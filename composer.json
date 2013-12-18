@@ -1,0 +1,32 @@
+{
+    "name" : "webjawns/webjawns-php-config",
+    "description" : "Allows setting of PHP options via configuration file in ZF2",
+    "type" : "zf-module",
+    "license" : "BSD-3-Clause",
+    "keywords" : [
+        "php",
+        "ini",
+        "options",
+        "ini_set",
+        "zf2"
+    ],
+    "homepage" : "http://webjawns.com",
+    "authors" : [
+	    {
+	        "name" : "Chris Strosser",
+	        "homepage" : "http://webjawns.com"
+	    }
+    ],
+    "require" : {
+        "php" : ">=5.3.3",
+        "zendframework/zend-mvc" : "2.*"
+    },
+    "autoload" : {
+        "psr-0" : {
+            "WebjawnsPhpConfig\\" : "src/",
+        },
+        "classmap" : [
+            "./Module.php"
+        ]
+    }
+}
