@@ -14,18 +14,64 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
         $application = $e->getApplication();
         $config = $application->getConfig();
 
-        if (isset($config['webjawns_php_config']) && is_array($config['webjawns_php_config'])) {
-            $phpConfig = $config['webjawns_php_config'];
+        $events = $application->getEventManager();
+        $events->attach('route', array($this, 'checkIniConfigByRoute'));
 
-            $throwExceptionOnFailure = isset($phpConfig['throw_exception_on_failure'])
-                ? (bool) $phpConfig['throw_exception_on_failure'] : true;
+        if (!isset($config['webjawns_php_config']) || !is_array($config['webjawns_php_config'])) {
+            continue;
+        }
+        $config = $config['webjawns_php_config'];
 
-            foreach ($phpConfig as $key => $value) {
-                if ('throw_exception_on_failure' === $key) {
-                    continue;
-                } elseif (false === ini_set($key, $value) && $throwExceptionOnFailure) {
-                    throw new Exception\RuntimeException(sprintf('Failed to set PHP "%s" configuration option', $key));
-                }
+        // Global INI directives
+        $this->processIniConfig($config);
+    }
+
+    public function checkIniConfigByRoute(MvcEvent $e)
+    {
+        $application = $e->getApplication();
+        $config = $application->getConfig();
+
+        $matches = $e->getRouteMatch();
+        $controller = $matches->getParam('controller');
+        $route = $matches->getMatchedRouteName();
+
+        if (!isset($config['webjawns_php_config']) || !is_array($config['webjawns_php_config'])) {
+            continue;
+        }
+        $config = $config['webjawns_php_config'];
+
+        // Controller-specific INI directives
+        if (isset($config['controllers']) && is_array($config['controllers'])) {
+            $controllerConfig = $config['controllers'];
+
+            if (isset($controllerConfig[$controller]) && is_array($controllerConfig[$controller])) {
+                $this->processIniConfig($controllerConfig[$controller]);
+            }
+        }
+
+        // Route-specific INI directives
+        if (isset($config['routes']) && is_array($config['routes'])) {
+            $routeConfig = $config['routes'];
+
+            if (isset($routeConfig[$route]) && is_array($routeConfig[$route])) {
+                $this->processIniConfig($routeConfig[$route]);
+            }
+        }
+    }
+
+    public function processIniConfig(array $config)
+    {
+        $throwExceptionOnFailure = isset($config['throw_exception_on_failure'])
+            ? (bool) $config['throw_exception_on_failure'] : true;
+
+        foreach ($config as $key => $value) {
+            if (in_array($key, array('controllers', 'routes', 'throw_exception_on_failure'))) {
+                continue;
+            }
+
+            $result = ini_set($key, $value);
+            if (false === $result && $throwExceptionOnFailure) {
+                throw new Exception\RuntimeException(sprintf('Failed to set PHP "%s" configuration option', $key));
             }
         }
     }
