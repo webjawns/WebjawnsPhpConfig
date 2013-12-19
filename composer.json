@@ -1,7 +1,7 @@
 {
     "name" : "webjawns/webjawns-php-config",
-    "description" : "Allows setting of PHP options via configuration file in ZF2",
-    "type" : "zf-module",
+    "description" : "Allows setting of php.ini options per controller, per route, and globally in ZF2",
+    "type" : "library",
     "license" : "BSD-3-Clause",
     "keywords" : [
         "php",
