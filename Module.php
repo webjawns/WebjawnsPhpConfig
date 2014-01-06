@@ -18,7 +18,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
         $events->attach('route', array($this, 'checkIniConfigByRoute'));
 
         if (!isset($config['webjawns_php_config']) || !is_array($config['webjawns_php_config'])) {
-            continue;
+            return;
         }
         $config = $config['webjawns_php_config'];
 
@@ -36,7 +36,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
         $route = $matches->getMatchedRouteName();
 
         if (!isset($config['webjawns_php_config']) || !is_array($config['webjawns_php_config'])) {
-            continue;
+            return;
         }
         $config = $config['webjawns_php_config'];
 
